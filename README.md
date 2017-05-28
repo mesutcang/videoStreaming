@@ -2,7 +2,7 @@
 Streaming Video with RTSP and RTP
 Classes
 
-There are 4 classes in the assignment.
+There are 4 classes in src folder.
 
 Client
 This class implements the client and the user interface which you use to send RTSP commands and which is used to display the video. Below is what the interface looks like. You will need to implement the actions that are taken when the buttons are pressed.
@@ -26,4 +26,5 @@ Then, start the client with the command
         java Client server_name server_port video_file
 where server_host is the name of the machine where the server is running, server_port is the port the server is listening on, and video_file is the name of the file you want to request (we have provided one example file movie.Mjpeg). The file format is described in the Appendix.
 
-The client opens a connection to the server and pops up a window like this:
+##Describe stream feature:
+You need to press Setup button then you can use Describe Stream Button.
