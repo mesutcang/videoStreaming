@@ -26,5 +26,5 @@ Then, start the client with the command
         java Client server_name server_port video_file
 where server_host is the name of the machine where the server is running, server_port is the port the server is listening on, and video_file is the name of the file you want to request (we have provided one example file movie.Mjpeg). The file format is described in the Appendix.
 
-##Describe stream feature:
+## Describe stream feature:
 You need to press Setup button then you can use Describe Stream Button.
