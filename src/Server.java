@@ -26,6 +26,9 @@ public class Server extends JFrame implements ActionListener {
     //----------------
     JLabel label;
 
+    //Wait for the SETUP message from the client
+    static int request_type;
+
     //Video variables:
     //----------------
     int imagenb = 0; //image nb of the image currently transmitted
@@ -48,6 +51,8 @@ public class Server extends JFrame implements ActionListener {
     final static int PLAY = 4;
     final static int PAUSE = 5;
     final static int TEARDOWN = 6;
+    final static int DESCRIBESTREAM = 7;
+
 
     static int state; //RTSP Server state == INIT or READY or PLAY
     Socket RTSPsocket; //socket used to send/receive RTSP messages
@@ -119,8 +124,6 @@ public class Server extends JFrame implements ActionListener {
         RTSPBufferedReader = new BufferedReader(new InputStreamReader(theServer.RTSPsocket.getInputStream()) );
         RTSPBufferedWriter = new BufferedWriter(new OutputStreamWriter(theServer.RTSPsocket.getOutputStream()) );
 
-        //Wait for the SETUP message from the client
-        int request_type;
         boolean done = false;
         while(!done)
         {
@@ -183,6 +186,11 @@ public class Server extends JFrame implements ActionListener {
 
                 System.exit(0);
             }
+            else if(request_type == DESCRIBESTREAM)
+            {
+                theServer.send_RTSP_response();
+            }
+
         }
     }
 
@@ -260,6 +268,8 @@ public class Server extends JFrame implements ActionListener {
                 request_type = PAUSE;
             else if ((new String(request_type_string)).compareTo("TEARDOWN") == 0)
                 request_type = TEARDOWN;
+            else if ((new String(request_type_string)).compareTo("DESCRIBESTREAM") == 0)
+                request_type = DESCRIBESTREAM;
 
             if (request_type == SETUP)
             {
@@ -301,10 +311,15 @@ public class Server extends JFrame implements ActionListener {
     //------------------------------------
     private void send_RTSP_response()
     {
+
         try{
             RTSPBufferedWriter.write("RTSP/1.0 200 OK"+CRLF);
             RTSPBufferedWriter.write("CSeq: "+RTSPSeqNb+CRLF);
             RTSPBufferedWriter.write("Session: "+RTSP_ID+CRLF);
+            if(request_type == DESCRIBESTREAM) {
+                RTSPBufferedWriter.write("Video Length: " + VIDEO_LENGTH + " frames, Frame Period:" + FRAME_PERIOD + CRLF);
+                RTSPBufferedWriter.write("Encoding Type: " + MJPEG_TYPE + CRLF);
+            }
             RTSPBufferedWriter.flush();
             System.out.println("RTSP Server - Sent response to Client.");
         }

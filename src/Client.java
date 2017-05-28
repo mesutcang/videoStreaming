@@ -20,11 +20,13 @@ public class Client{
     JButton playButton = new JButton("Play");
     JButton pauseButton = new JButton("Pause");
     JButton tearButton = new JButton("Teardown");
+    JButton descButton = new JButton("Describe Stream");
+
     JPanel mainPanel = new JPanel();
     JPanel buttonPanel = new JPanel();
     JLabel iconLabel = new JLabel();
     ImageIcon icon;
-
+    static int descResponse=0;
 
     //RTP variables:
     //----------------
@@ -77,10 +79,14 @@ public class Client{
         buttonPanel.add(playButton);
         buttonPanel.add(pauseButton);
         buttonPanel.add(tearButton);
+        buttonPanel.add(descButton);
+
         setupButton.addActionListener(new setupButtonListener());
         playButton.addActionListener(new playButtonListener());
         pauseButton.addActionListener(new pauseButtonListener());
         tearButton.addActionListener(new tearButtonListener());
+        descButton.addActionListener(new DescButtonListener());
+
 
         //Image display label
         iconLabel.setIcon(null);
@@ -340,6 +346,27 @@ public class Client{
     }
 
     //------------------------------------
+    //Handler for describe stream button
+    //------------------------------------
+    class DescButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+
+            System.out.println("Describe Stream Button is pressed.");
+
+            // Init RTSP sequence number
+            RTSPSeqNb++;
+
+            send_RTSP_request("DESCRIBESTREAM");
+            descResponse =1;
+            if (parse_server_response() != 200) {
+                System.out.println("Invalid Server Response");
+            }
+
+        }
+
+    }
+
+    //------------------------------------
     //Parse Server Response
     //------------------------------------
     private int parse_server_response()
@@ -366,9 +393,21 @@ public class Client{
                 System.out.println(SessionLine);
 
                 //if state == INIT gets the Session Id from the SessionLine
-                tokens = new StringTokenizer(SessionLine);
-                tokens.nextToken(); //skip over the Session:
-                RTSPid = Integer.parseInt(tokens.nextToken());
+                if (descResponse == 1){
+                    descResponse=0;
+                    StringBuilder descMessage = new StringBuilder();
+                    descMessage.append(RTSPBufferedReader.readLine());
+                    descMessage.append(RTSPBufferedReader.readLine());
+                    System.out.println(descMessage.toString());
+
+                    JOptionPane.showMessageDialog(null, descMessage.toString());
+
+//                    JOptionPane.showMessageDialog(null, descMessage.toString(), "", JOptionPane.INFORMATION_MESSAGE);
+                }else {
+                    tokens = new StringTokenizer(SessionLine);
+                    tokens.nextToken(); //skip over the Session:
+                    RTSPid = Integer.parseInt(tokens.nextToken());
+                }
             }
         }
         catch(Exception ex)
